@@ -1,0 +1,114 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+const int MAX_COURSES = 10; 
+
+
+double getGradePoints(char grade) {
+    if (grade >= 'a' && grade <= 'z') {
+        grade = grade - 'a' + 'A'; 
+    }
+    if (grade == 'A') return 4.0;
+    if (grade == 'B') return 3.0;
+    if (grade == 'C') return 2.0;
+    if (grade == 'D') return 1.0;
+    if (grade == 'F') return 0.0;
+    return -1.0; 
+}
+
+int main() {
+    int numCourses;
+    double totalCredits = 0.0;
+    double totalGradePoints = 0.0;
+    
+    
+    string courseNames[MAX_COURSES];
+    int courseCredits[MAX_COURSES];
+    char courseGrades[MAX_COURSES];
+
+    cout << "CGPA Calculator" << endl;
+    cout << "-----------------" << endl;
+    
+    
+    cout << "Enter the number of courses taken (max " << MAX_COURSES << "): ";
+    cin >> numCourses;
+
+    
+    if (numCourses > MAX_COURSES || numCourses <= 0) {
+        cout << "Invalid number of courses. Please enter a number between 1 and " << MAX_COURSES << "." << endl;
+        return 1;
+    }
+
+   
+    for (int i = 0; i < numCourses; ++i) {
+        cout << "\n--- Course " << i + 1 << " ---" << endl;
+        cout << "Enter course name: ";
+        cin.ignore(); 
+        getline(cin, courseNames[i]);
+
+        cout << "Enter credit hours: ";
+        cin >> courseCredits[i];
+        
+        cout << "Enter grade (A, B, C, D, F): ";
+        cin >> courseGrades[i];
+
+       
+        double gradePoints = getGradePoints(courseGrades[i]);
+        if (gradePoints != -1.0) {
+            totalCredits += courseCredits[i];
+            totalGradePoints += (gradePoints * courseCredits[i]);
+        } else {
+            cout << "Invalid grade entered. This course will not be included in the calculation." << endl;
+        }
+    }
+
+    
+    cout << "\n--- Individual Course Grades ---" << endl;
+    
+    
+    cout << "Course Name                     Credits        Grade\n";
+    
+    for (int i = 0; i < numCourses; ++i) {
+        cout << courseNames[i];
+        
+        for (int j = 0; j < 30 - courseNames[i].length(); ++j) {
+            cout << " ";
+        }
+        cout << courseCredits[i];
+        for (int j = 0; j < 15 - to_string(courseCredits[i]).length(); ++j) {
+            cout << " ";
+        }
+        cout << courseGrades[i] << endl;
+    }
+
+    
+    double gpa = 0.0;
+    if (totalCredits > 0) {
+        gpa = totalGradePoints / totalCredits;
+    }
+    double cgpa = gpa; 
+
+    cout << "\n--- Calculation Results ---" << endl;
+    
+    
+    string gpa_str = to_string(gpa);
+    size_t decimal_pos = gpa_str.find('.');
+    if (decimal_pos != string::npos) {
+        gpa_str = gpa_str.substr(0, decimal_pos + 3);
+    }
+    
+    string cgpa_str = to_string(cgpa);
+    size_t cgpa_decimal_pos = cgpa_str.find('.');
+    if (cgpa_decimal_pos != string::npos) {
+        cgpa_str = cgpa_str.substr(0, cgpa_decimal_pos + 3);
+    }
+
+    cout << "Total Credits: " << totalCredits << endl;
+    cout << "Total Grade Points: " << totalGradePoints << endl;
+    cout << "Your GPA for the semester is: " << gpa_str << endl;
+    cout << "Your final CGPA is: " << cgpa_str << endl;
+
+    return 0;
+}

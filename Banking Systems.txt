@@ -1,0 +1,119 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class Transaction {
+public:
+    string type;
+    double amount;
+    string note;
+    Transaction(string t, double a, string n) {
+        type = t;
+        amount = a;
+        note = n;
+    }
+};
+
+class Account {
+public:
+    int accountNumber;
+    double balance;
+    vector<Transaction> history;
+
+    Account(int accNo, double initialBalance = 0) {
+        accountNumber = accNo;
+        balance = initialBalance;
+    }
+
+    void deposit(double amount) {
+        balance += amount;
+        history.push_back(Transaction("Deposit", amount, "Amount deposited"));
+    }
+
+    void withdraw(double amount) {
+        if (amount <= balance) {
+            balance -= amount;
+            history.push_back(Transaction("Withdraw", amount, "Amount withdrawn"));
+        } else {
+            cout << "Insufficient balance\n";
+        }
+    }
+
+    void transfer(Account &receiver, double amount) {
+        if (amount <= balance) {
+            balance -= amount;
+            receiver.balance += amount;
+            history.push_back(Transaction("Transfer Out", amount, "Sent to account " + to_string(receiver.accountNumber)));
+            receiver.history.push_back(Transaction("Transfer In", amount, "Received from account " + to_string(accountNumber)));
+        } else {
+            cout << "Insufficient balance\n";
+        }
+    }
+
+    void showHistory() {
+        cout << "\nTransaction History for Account " << accountNumber << ":\n";
+        for (auto &t : history) {
+            cout << t.type << " - " << t.amount << " (" << t.note << ")\n";
+        }
+    }
+
+    void showInfo() {
+        cout << "\nAccount No: " << accountNumber << " | Balance: " << balance << endl;
+    }
+};
+
+class Customer {
+public:
+    string name;
+    int customerID;
+    vector<Account> accounts;
+
+    Customer(string n, int id) {
+        name = n;
+        customerID = id;
+    }
+
+    void addAccount(int accNo, double initialBalance = 0) {
+        accounts.push_back(Account(accNo, initialBalance));
+    }
+
+    Account* getAccount(int accNo) {
+        for (auto &acc : accounts) {
+            if (acc.accountNumber == accNo) return &acc;
+        }
+        return nullptr;
+    }
+
+    void showCustomerInfo() {
+        cout << "\nCustomer: " << name << " (ID: " << customerID << ")\n";
+        for (auto &acc : accounts) {
+            acc.showInfo();
+        }
+    }
+};
+
+int main() {
+    Customer c1("Alice", 101);
+    Customer c2("Bob", 102);
+
+    c1.addAccount(1001, 5000);
+    c2.addAccount(2001, 3000);
+
+    Account* acc1 = c1.getAccount(1001);
+    Account* acc2 = c2.getAccount(2001);
+
+    if (acc1 && acc2) {
+        acc1->deposit(2000);
+        acc1->withdraw(1500);
+        acc1->transfer(*acc2, 1000);
+    }
+
+    c1.showCustomerInfo();
+    c2.showCustomerInfo();
+
+    if (acc1) acc1->showHistory();
+    if (acc2) acc2->showHistory();
+
+    return 0;
+}
